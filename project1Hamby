@@ -1,0 +1,162 @@
+from PIL import Image, ImageDraw
+import random
+import numpy
+import time
+
+"""Use: 
+Program makes bouncy ball gif dependent on Markov sized matrix that user helps build."""
+
+states = ["big", "small"]
+cont_states = [["bb", "bs"], ["ss", "sb"]]
+trans_matrix = [[0.8, 0.2], [0.3, 0.7]]
+
+def markov_time():
+
+    #prompt user for prior
+    user_states = ["small", "big"] 
+    prior_input = ''
+    prior_prompt = "Our options are: 'small' or 'big' \nWhat size range should our prior be? "
+
+    #prior_prompt += "What size range should our prior be? "
+    print(prior_input)
+
+    #error
+    while prior_input not in user_states:
+        prior_input = input(prior_prompt)
+
+    #starting point
+    size_list = [prior_input]
+    probability_list = 1
+
+    for i in range(0, 5): 
+
+        if prior_input == "big":
+            switch = numpy.random.choice(cont_states[0], replace=True, p= trans_matrix[0])
+            
+            if switch == "bb":
+                probability_list *= 0.8 
+                size_list.append("big")
+            
+            else:
+                probability_list *= 0.2
+                size_list.append("small")
+        
+        elif prior_input == "small":
+            switch = numpy.random.choice(cont_states[1], replace=True, p= trans_matrix[1])
+            
+            if switch == "ss":
+                probability_list *= 0.3
+                size_list.append("small")
+                pass
+            
+            else:
+                probability_list *= 0.7
+                size_list.append("big")
+        i+=1 
+
+    print("Possible States: " + str(size_list))
+
+    #def movement()
+    frames = []
+    x, y = 0, 0
+
+    for i in range(0, 4): 
+
+        if size_list[0] == "small":
+            unknown1 = random.randint(1, 100)
+            #unknown1 = small
+
+        elif size_list[0] == "big":
+            unknown1 = random.randint(200, 300)
+            #unknown1 = big
+
+        frame_set1 = flying_ball(400, 400, x, y, unknown1)
+        frames.append(frame_set1)
+        x += 90
+        y += 10 
+
+    for i in range(4, 9): 
+        
+        if size_list[1] == "small":
+            unknown2 = random.randint(1, 100)
+            #unknown2 = small
+        
+        elif size_list[1] == "big":
+            unknown2 = random.randint(200, 300)
+            #unknown2 = big
+        
+        frame_set1 = flying_ball(400, 400, x, y, unknown2)
+        #(400, 400, x, y, size of circle)
+        frames.append(frame_set1)
+        x -= 90
+        y -= 10 
+
+    for i in range(0,4):
+        
+        if size_list[2] == "small":
+            unknown3 = random.randint(1, 100)
+        
+        elif size_list[2] == "big":
+            unknown3 = random.randint(200, 300)
+        
+        frame_set2 = flying_ball(400, 400, x, y, unknown3)
+        frames.append(frame_set2)
+        x+=90
+        y+=10
+
+    for i in range(4, 9):
+        
+        if size_list[3] == "small":
+            unknown4 = random.randint(1, 100)
+        
+        elif size_list[3] == "big":
+            unknown4 = random.randint(200, 300)
+        
+        frame_set2 =flying_ball(400, 400, x, y, unknown4)
+        frames.append(frame_set2)
+        x-= 90
+        y-=10
+
+    for i in range(0, 4):
+        
+        if size_list[4] == "small":
+            unknown5 = random.randint(1, 100)
+        
+        elif size_list[4] == "big":
+            unknown5 = random.randint(200, 300)
+        
+        frame_set3 = flying_ball(400, 400, x, y , unknown5)
+        frames.append(frame_set3)
+        x+=200
+        y+=200
+
+    for i in range(4, 9):
+        
+        if size_list[5] == "small":
+            unknown6 = random.randint(1, 100)
+        
+        elif size_list[5] == "big":
+            unknown6 = random.randint(200, 300)
+
+        frame_set3 = flying_ball(400, 400, x, y , unknown6)
+        frames.append(frame_set3)
+        x-=200
+        y-=200
+
+    #have to rename file with each run for it to save
+    now = time.strftime("%H_%M_%S",time.localtime())
+    file_name = str(now) + ".gif"
+    frames[0].save((file_name), format='GIF', append_images=frames[1:], 
+    save_all=True, duration=100, loop=0)
+
+def flying_ball(w, h, xs, ys, size):
+    im = Image.new('RGB', (w, h), (200, 200, 300))
+    draw = ImageDraw.Draw(im)
+    #draw.ellipse(x0, y0, x1, y1)
+    #visual location in comment
+    #x0, y0
+    #       x1, y1
+    draw.ellipse((xs, ys, xs + size, ys + size), fill = 'pink')
+    return im 
+
+markov_time()
